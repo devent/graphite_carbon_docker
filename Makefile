@@ -16,6 +16,10 @@ test-graphine:
 test-grafana:
 	docker run -d -p "3000:3000" --link "$(NAME):graphine" --name "grafana" grafana/grafana
 
+test-seyren:
+	docker run -d --name "mongodb" mongo:3.0.1
+	docker run -d -p "4000:8080" --name "seyren" --link "mongodb:mongodb" --link "$(NAME):graphine" -e "GRAPHITE_URL=http://graphine:8000" usman/docker-seyren
+
 include Makefile.help
 include Makefile.functions
 include Makefile.image
