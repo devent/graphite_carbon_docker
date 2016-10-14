@@ -1,6 +1,6 @@
 REPOSITORY := erwinnttdata
 NAME := graphite_carbon
-VERSION ?= 0.9.15_001
+VERSION ?= 1.10.0_001
 
 build: _build ##@targets Builds the docker image.
 

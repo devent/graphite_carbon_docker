@@ -2,8 +2,9 @@ FROM debian:8.6
 
 # Configuration variables.
 ENV DEBIAN_FRONTEND noninteractive
-ENV GRAPHITE_VERSION 0.9.15
-ENV GUNICORN_VERSION 19.6.0
+ENV WHISPER_VERSION 5ce9e80921cd8f33ab1797dc5781b0973c68d85c
+ENV GRAPHITE_VERSION e76a8d6c1d3aacd7f4ef4099cc4cd5ffff4fd4f6
+ENV CARBON_VERSION 2a9d92efaf43d4b696ac5c1ff40f019a0d81da2e
 
 # Install tools and xmlstarlet to configure the Tomcat XML files.
 RUN set -x \
@@ -12,18 +13,16 @@ RUN set -x \
         # python
         gcc \
         python-dev \
-        libcairo2-dev \
-        libffi-dev \
         python-pip \
         python-ldap \
-        python-cairo \
         python-django \
-        python-twisted \
         python-django-tagging \
         python-simplejson \
         python-memcache \
         python-pysqlite2 \
         python-tz \
+        python-cairocffi \
+        libffi-dev \
         # postgresql
         libpq-dev python-psycopg2 \
         # supervisor
@@ -32,24 +31,28 @@ RUN set -x \
         nginx-light \
     && rm -rf /var/lib/apt/lists/*
 
+# Install whitenoise.
+RUN set -x \
+    && pip install whitenoise==3.2.2
+
 # Install whisper.
 RUN set -x \
     && export PYTHONPATH="/opt/graphite/lib/:/opt/graphite/webapp/" \
-    && pip install "https://github.com/graphite-project/whisper/archive/${GRAPHITE_VERSION}.tar.gz"
+    && pip install "https://github.com/graphite-project/whisper/archive/${WHISPER_VERSION}.zip"
 
 # Install carbon.
 RUN set -x \
     && export PYTHONPATH="/opt/graphite/lib/:/opt/graphite/webapp/" \
-    && pip install "https://github.com/graphite-project/carbon/archive/${GRAPHITE_VERSION}.tar.gz"
+    && pip install "https://github.com/graphite-project/carbon/archive/${CARBON_VERSION}.zip"
 
 # Install graphine.
 RUN set -x \
     && export PYTHONPATH="/opt/graphite/lib/:/opt/graphite/webapp/" \
-    && pip install "https://github.com/graphite-project/graphite-web/archive/${GRAPHITE_VERSION}.tar.gz"
+    && pip install "https://github.com/graphite-project/graphite-web/archive/${GRAPHITE_VERSION}.zip"
 
 # Install gunicorn.
 RUN set -x \
-    && pip install gunicorn==$GUNICORN_VERSION
+    && pip install gunicorn==19.6.0
 
 # Whisper storage directory.
 VOLUME /var/lib/graphite/storage/whisper
@@ -87,9 +90,9 @@ RUN set -x \
     && cp /opt/graphite/conf/storage-schemas.conf.example /opt/graphite/conf/storage-schemas.conf \
     && cp /opt/graphite/conf/graphite.wsgi.example /opt/graphite/webapp/graphite/graphite_wsgi.py \
     # Create initial database.
-    && cd /opt/graphite/webapp/graphite && python manage.py syncdb --noinput \
-    # Copy graphite-web WSGI.
-    && cp /opt/graphite/conf/graphite.wsgi.example /opt/graphite/webapp/graphite/graphite_wsgi.py \
+    && PYTHONPATH=/opt/graphite/webapp django-admin.py migrate --settings=graphite.settings --run-syncdb \
+    # Create static content.
+    && PYTHONPATH=/opt/graphite/webapp django-admin.py collectstatic --noinput --settings=graphite.settings \
     # Set permissions.
     && chown -R www-data /opt/graphite/storage \
     # Make sure entrypoint script is executable.
