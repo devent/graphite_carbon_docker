@@ -38,11 +38,11 @@ make deploy DOCKER_HUB_USER=user DOCKER_HUB_PASSWORD='password'
 ```
 
 To test the build locally, the included `Makefile` also have the goals
-* test-graphine
+* `test-graphine`
   Starts the build Graphine image.
-* test-grafana
+* `test-grafana`
   Starts the Grafana that can access the Graphite API.
-* test-seyren
+* `test-seyren`
   Starts the Seyren that can access the Graphite API.
 
 # License
