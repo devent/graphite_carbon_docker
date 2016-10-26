@@ -41,9 +41,9 @@ To test the build locally, the included `Makefile` also have the goals
 * `test-graphine`
   Starts the build Graphine image.
 * `test-grafana`
-  Starts the Grafana that can access the Graphite API.
+  Starts Grafana that can access the Graphite API.
 * `test-seyren`
-  Starts the Seyren that can access the Graphite API.
+  Starts Seyren that can access the Graphite API.
 
 # License
 
