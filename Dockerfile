@@ -66,8 +66,11 @@ EXPOSE 2004
 # Carbon cache query port.
 EXPOSE 7002
 
-# Webapp HTTP port.
+# Gunicorn HTTP port.
 EXPOSE 8000
+
+# Nginx HTTP port.
+EXPOSE 80
 
 # Add entrypoint script.
 COPY docker-entrypoint.sh /usr/local/bin/
@@ -82,6 +85,7 @@ CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 COPY supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 COPY supervisor/carbon_cache.conf /etc/supervisor/conf.d/
 COPY supervisor/graphite_webapp.conf /etc/supervisor/conf.d/
+COPY supervisor/nginx.conf /etc/supervisor/conf.d/
 
 # Set default configuration.
 RUN set -x \
@@ -95,5 +99,11 @@ RUN set -x \
     && PYTHONPATH=/opt/graphite/webapp django-admin.py collectstatic --noinput --settings=graphite.settings \
     # Set permissions.
     && chown -R www-data /opt/graphite/storage \
+    # Remove Nginx default configuration.
+    && rm /etc/nginx/sites-enabled/default \
     # Make sure entrypoint script is executable.
     && chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Setup Nginx configuration.
+COPY nginx/nginx.conf /etc/nginx/
+COPY nginx/graphite.conf /etc/nginx/sites-enabled/

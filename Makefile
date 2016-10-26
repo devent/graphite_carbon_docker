@@ -1,6 +1,6 @@
 REPOSITORY := erwinnttdata
 NAME := graphite_carbon
-VERSION ?= 1.10.0_001
+VERSION ?= 1.10.0_005
 
 build: _build ##@targets Builds the docker image.
 
@@ -11,7 +11,7 @@ clean: _clean ##@targets Removes the docker image.
 deploy: _deploy ##@targets Deploys the docker image to the repository.
 
 test-graphine:
-	docker run -d -p "2003:2003" -p "2004:2004" -p "7002:7002" -p "8000:8000" --name $(NAME) $(REPOSITORY)/$(NAME):$(VERSION)
+	docker run -d -p "2003:2003" -p "2004:2004" -p "7002:7002" -p "8000:8000" -p "80:80" --name $(NAME) $(REPOSITORY)/$(NAME):$(VERSION)
 
 test-grafana:
 	docker run -d -p "3000:3000" --link "$(NAME):graphine" --name "grafana" grafana/grafana
