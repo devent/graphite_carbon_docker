@@ -12,7 +12,7 @@ docker run -d -p "3000:3000" --link "graphite_carbon:graphine" --name "grafana" 
 ## Description
 
 Since Graphite 1.10.0 is not yet released, the Docker image will be based
-on the Git repository master branch. To make the build reproduceble, the 
+on the Git repository master branch. To make the build reproducible, the 
 Whisper, Graphite and Carbon versions are fixed on the master's commit hash.
 
 Installs Whitenoise, Whisper, Carbon, Graphine, Gunicorn and Nginx and starts
@@ -24,6 +24,26 @@ is stored and is exported as a volume.
 
 To serve the Graphite Web UI in a URL prefix, override the file
 `/opt/graphite/webapp/graphite/local_settings.py`.
+
+## Build
+
+The build and deployment can be started by using the included `Makefile` 
+build file.
+
+```
+# Build the Docker image.
+make build
+# Deploy the Docker image.
+make deploy DOCKER_HUB_USER=user DOCKER_HUB_PASSWORD='password'
+```
+
+To test the build locally, the included `Makefile` also have the goals
+* test-graphine
+  Starts the build Graphine image.
+* test-grafana
+  Starts the Grafana that can access the Graphite API.
+* test-seyren
+  Starts the Seyren that can access the Graphite API.
 
 # License
 
